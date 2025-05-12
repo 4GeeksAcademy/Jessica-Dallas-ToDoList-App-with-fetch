@@ -1,59 +1,112 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 
-const Home = () => {
-  const [task, setTask] = useState("");
-  const [taskList, setTaskList] = useState([]);
+//create your first component
+const TodoList = () => {
+  const [todos, setTodos] = useState([
+    { label: "Work On Pending Projects", done: false },
+    { label: "Work On Pending Orders", done: false },
+    { label: "Ship Out Orders", done: false },
+    { label: "Wash Clothes", done: false },
+  ]);
+  const [newTodo, setNewTodo] = useState("");
+  const API_URL = "https://playground.4geeks.com/todo/users/Jessica-Dallas";
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && task.trim() !== "") {
-      setTaskList([...taskList, task.trim()]);
-      setTask("");
+
+  useEffect(() => {
+    const UserExists = async () => {
+      let response = await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas");
+      let data = await response.json();
+
+
+      if (data.slug !== "Jessica-Dallas") {
+
+        await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify([]),
+        });
+        console.log("User created: Jessica-Dallas");
+      }
+
+
+      fetchTodos();
+    };
+
+    const fetchTodos = async () => {
+      let response = await fetch(API_URL);
+      let data = await response.json();
+      console.log("Fetched data:", data);
+
+      if (Array.isArray(data)) {
+        setTodos(data);
+      }
+    };
+
+    UserExists();
+  }, []);
+
+  const addTodo = async (e) => {
+    e.preventDefault();
+    if (newTodo.trim() !== "") {
+      let updatedTodos = [...todos, { label: newTodo, done: false }];
+      setTodos(updatedTodos);
+      setNewTodo("");
+
+      await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas", {
+        method: "PUT",
+        body: JSON.stringify(updatedTodos),
+        headers: { "Content-Type": "application/json" },
+      });
     }
   };
 
-  const removeTask = (index) => {
-    const newList = taskList.filter((_, i) => i !== index);
-    setTaskList(newList);
+  const removeTodo = async (index) => {
+    let updatedTodos = todos.filter((_, i) => i !== index);
+    setTodos(updatedTodos);
+
+    await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas", {
+      method: "PUT",
+      body: JSON.stringify(updatedTodos),
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  const clearTodos = async () => {
+    setTodos([]);
+    await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
   };
 
   return (
-    <div className="container mt-5">
-      <h1 className="text-center text-muted">To-Do List</h1>
-      <div className="card mx-auto shadow-sm" style={{ maxWidth: "500px" }}>
-        <ul className="list-group list-group-flush">
-          <li className="list-group-item">
-            <input
-              type="text"
-              className="form-control border-0 shadow-none"
-              placeholder="What needs to be done?"
-              value={task}
-              onChange={(e) => setTask(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
+    <div className="todo-container">
+      <h1 className="todo-title">To-Dos</h1>
+      <form onSubmit={addTodo}>
+        <input
+          type="text"
+          placeholder="What needs to be done?"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          className="todo-input"
+        />
+      </form>
+
+      <ul className="todo-list">
+        {todos.map((todo, index) => (
+          <li key={index} className="todo-item">
+            {todo.label}
+            <button onClick={() => removeTodo(index)} className="delete-button">
+              ✖
+            </button>
           </li>
-          {taskList.map((item, index) => (
-            <li
-              key={index}
-              className="list-group-item d-flex justify-content-between align-items-center"
-            >
-              {item}
-              <button
-                className="btn btn-sm btn-outline-danger"
-                onClick={() => removeTask(index)}
-              >
-                ✕
-              </button>
-            </li>
-          ))}
-          <li className="list-group-item text-muted">
-            {taskList.length === 0
-              ? "No tasks, add a task"
-              : `${taskList.length} item${taskList.length > 1 ? "s" : ""} left`}
-          </li>
-        </ul>
+        ))}
+      </ul>
+      <div className="todo-footer">
+        {todos.length} {todos.length === 1 ? "item" : "items"} left
       </div>
     </div>
   );
 };
 
-export default Home;
+export default TodoList;
