@@ -9,7 +9,7 @@ const TodoList = () => {
     { label: "Wash Clothes", done: false },
   ]);
   const [newTodo, setNewTodo] = useState("");
-  const API_URL = "https://playground.4geeks.com/todo/users/Jessica-Dallas";
+const API_URL = "https://playground.4geeks.com/todo/users/Jessica-Dallas";
 
 
   useEffect(() => {
@@ -18,14 +18,14 @@ const TodoList = () => {
       let data = await response.json();
 
 
-      if (data.slug !== "Jessica-Dallas") {
+      if (data.slug !== "Jessica_Dallas") {
 
         await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify([]),
         });
-        console.log("User created: Jessica-Dallas");
+        console.log("User created: Jessica_Dallas");
       }
 
 
@@ -52,7 +52,7 @@ const TodoList = () => {
       setTodos(updatedTodos);
       setNewTodo("");
 
-      await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas", {
+      await fetch("https://playground.4geeks.com/todo/todos/214", {
         method: "PUT",
         body: JSON.stringify(updatedTodos),
         headers: { "Content-Type": "application/json" },
@@ -64,7 +64,7 @@ const TodoList = () => {
     let updatedTodos = todos.filter((_, i) => i !== index);
     setTodos(updatedTodos);
 
-    await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas", {
+    await fetch("https://playground.4geeks.com/todo/todos/214", {
       method: "PUT",
       body: JSON.stringify(updatedTodos),
       headers: { "Content-Type": "application/json" },
@@ -73,7 +73,7 @@ const TodoList = () => {
 
   const clearTodos = async () => {
     setTodos([]);
-    await fetch("https://playground.4geeks.com/todo/users/Jessica-Dallas", {
+    await fetch("https://playground.4geeks.com/todo/users/Jessica_Dallas", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
